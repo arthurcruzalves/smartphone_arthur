@@ -1,0 +1,42 @@
+@charset "UTF-8";
+
+/* Botões ()*/
+.button img{
+    margin: 50px 15px 25px 15px;
+    padding: 5px;
+    border: 1px solid #bfc214;
+    cursor: pointer;
+    
+}
+
+/* Botão reset */
+#btnReset {
+    width: 50px;
+    height: 50px;
+    background-image: url('../img/borracha.png');
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+/* rodapé */ 
+footer {
+    background-color: rgb(152, 152, 153);
+    color:#eee;
+    text-align: center;
+    padding: 8px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    font-size: 15px;
+}
+
+footer p {
+    margin: 0;
+    font-family: sans-serif;
+}
+
+body {
+    background-color: blanchedalmond;
+}
+

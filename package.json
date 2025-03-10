@@ -1,0 +1,23 @@
+{
+  "name": "alvesti",
+  "version": "1.0.0",
+  "description": "Desenvolvimento de sistema desktop para gestão de ordem de serviço de uma assistência técnica de computadores e notbooks.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arthurcruzalves/alvesti.git"
+  },
+  "author": "Arthur Cruz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/arthurcruzalves/alvesti/issues"
+  },
+  "homepage": "https://github.com/arthurcruzalves/alvesti#readme",
+  "devDependencies": {
+    "electron": "^34.2.0"
+  }
+}
