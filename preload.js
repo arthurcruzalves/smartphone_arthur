@@ -9,5 +9,6 @@ const {contextBridge, ipcRenderer} = require('electron')
 // expor (autorização a  comunicação entre processos)
 contextBridge.exposeInMainWorld('api',{
     clientWindow: () => ipcRenderer.send('client-window'),
-    osWindow: () => ipcRenderer.send('os-window')
+    osWindow: () => ipcRenderer.send('os-window'),
+    smartphoneWindow: () => ipcRenderer.send('smartphone-window')
 })

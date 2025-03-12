@@ -36,7 +36,7 @@ const createWindow = () => {
     })
 
     ipcMain.on('smartphone-window', () => {
-        smartphoneWindow()
+    smartphoneWindow()
     })
 }
 

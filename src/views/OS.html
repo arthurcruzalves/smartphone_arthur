@@ -27,6 +27,40 @@
                     <label for="inputosClient" class="form-label">Ordem de Serviço</label>
                     <input type="text" class="form-control" id="inputenderecoClient" placeholder="Número da OS" required maxlength="30">
                 </div>
+                <!-- Nome -->
+                <div class="col-md-5">
+                    <label for="inputNameClient" class="form-label">Nome</label>
+                    <input type="text" class="form-control bg-white" id="inputNameClient" spellcheck="false" maxlength="30" disabled>
+                </div>
+
+                <!-- Telefone -->
+                <div class="col-md-3">
+                    <label for="inputPhoneClient" class="form-label">Telefone (Opcional)</label>
+                    <input type="text" class="form-control bg-white" id="inputPhoneClient" spellcheck="false" maxlength="15" disabled>
+                </div>
+
+                <!-- CPF -->
+                <div class="col-md-4">
+                    <label for="inputCPFClient" class="form-label">CPF</label>
+                    <input type="text" class="form-control bg-white" id="inputCPFClient" spellcheck="false" maxlength="15" disabled>
+                </div>
+
+            <!-- Linha -->
+            <hr class="mt-4 border border-primary border -1" >
+
+            <!-- Status -->
+            <div class="col-md-4">
+                <label class="form-label">Status da OS</label>
+                <select class="form-select" id="osStatus">
+                    <option value="">Selecione</option>
+                    <option>Aberta</option>
+                    <option>Em andamento</option>
+                    <option>Aguardando peças</option>
+                    <option>Finalizada</option>
+                    <option>Cancelada</option>
+                </select>
+            </div>
+
                 <div class="col-md-3">
                     <label for="inputdata_servico" class="form-label">Data da Ordem de Serviço</label>
                     <input type="date" class="form-control" id="inputdata_servico" required>
@@ -46,12 +80,25 @@
                 </div>
               
                 <div class="col-md-6">
-                    <label for="inputnomeClient" class="form-label">Nome do Cliente</label>
+                    <label for="inputnomeClient" class="form-label">Responsável</label>
                     <input type="text" class="form-control" id="inputnomeClient" placeholder="Cliente" required maxlength="30">
                 </div>
                 <div class="col-md-3">
-                    <label for="inputresponsavel" class="form-label">Responsável pelo Serviço</label>
-                    <input type="text" class="form-control" id="inputresponsavel" placeholder="Nome do responsável" required maxlength="30">
+                    <label for="inputresponsavel" class="form-label">Modelo do Smartphone</label>
+                    <input type="text" class="form-control" id="inputresponsavel" placeholder="Smartphone/Tablet" required maxlength="30">
+                </div>
+
+                <div class="col-md-3">
+                    <label for="inputcor" class="form-label">Cor do celular</label>
+                    <input type="text" class="form-control" id="inputcor" placeholder="Smartphone/Tablet" required maxlength="30">
+                </div>
+                <div class="col-md-3">
+                    <label for="inputtecnico" class="form-label">Tecnico Responsável</label>
+                    <input type="text" class="form-control" id="inputtecnico" placeholder="" required maxlength="30">
+                </div>
+                <div class="col-md-3">
+                    <label for="inputdiagnostico" class="form-label">Diagnóstico Tecnico</label>
+                    <input type="text" class="form-control" id="inputdiagnostico" placeholder="" required maxlength="30">
                 </div>
     
                 <div class="md-5">
