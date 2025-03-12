@@ -16,3 +16,9 @@ function os() {
      // uso da api(autorização no preload.js)
      api.osWindow()
 }
+
+function smartphone() {
+     //console.log("teste do botão os")
+     // uso da api(autorização no preload.js)
+    api.smartphoneWindow()
+}

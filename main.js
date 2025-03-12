@@ -34,6 +34,10 @@ const createWindow = () => {
     ipcMain.on('os-window', () => {
       osWindow()
     })
+
+    ipcMain.on('smartphone-window', () => {
+        smartphoneWindow()
+    })
 }
 
 // Janela sobre
@@ -95,6 +99,25 @@ function osWindow() {
     }
   OS.loadFile('./src/views/os.html')
   OS.center()
+}
+
+// Janela smartphone
+let smartphone
+function smartphoneWindow() {
+    nativeTheme.themeSource = 'light'
+    const main = BrowserWindow.getFocusedWindow()
+    if(main) {
+        smartphone = new BrowserWindow({
+            width: 1010,
+            height: 720,
+            //autoHideMenuBar: true,
+            resizable: false,
+            parent: main,
+            modal: true
+        })
+    }
+    smartphone.loadFile('./src/views/smartphone.html')
+    smartphone.center()
 }
 
 // Iniciar a aplicação
