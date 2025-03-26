@@ -26,18 +26,6 @@ const createWindow = () => {
 
     win.loadFile('./src/views/index.html')
 
-    // recebimento dos pedidos do renderizador para abertura de janelas (botões)
-    ipcMain.on('client-window', () => {
-      clientWindow()
-    })
-
-    ipcMain.on('os-window', () => {
-      osWindow()
-    })
-
-    ipcMain.on('smartphone-window', () => {
-    smartphoneWindow()
-    })
 }
 
 // Janela sobre
@@ -215,3 +203,16 @@ const template = [
         ]
     }
 ]
+
+// recebimento dos pedidos do renderizador para abertura de janelas (botões)
+ipcMain.on('client-window', () => {
+    clientWindow()
+  })
+
+  ipcMain.on('os-window', () => {
+    osWindow()
+  })
+
+  ipcMain.on('smartphone-window', () => {
+  smartphoneWindow()
+  })
