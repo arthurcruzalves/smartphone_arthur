@@ -21,7 +21,7 @@
 
 /* rodapé */ 
 footer {
-    background-color: rgb(152, 152, 153);
+    background-color: rgb(156, 156, 156);
     color:#eee;
     text-align: center;
     padding: 8px;
@@ -29,11 +29,14 @@ footer {
     bottom: 0;
     width: 100%;
     font-size: 15px;
+    display: flex;
+    justify-content: space-between;
 }
 
 footer p {
     margin: 0;
     font-family: sans-serif;
+    font-size: 1.1em;
 }
 
 body {

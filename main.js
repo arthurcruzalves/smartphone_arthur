@@ -2,7 +2,14 @@ console.log("Processo principal")
 
 const { app, BrowserWindow, nativeTheme, Menu, ipcMain } = require('electron')
 
+// Esta linha está relacionada ao preload.js
 const path = require('node:path')
+
+// Importação dos métodos conectar e desconectar (modulo de conexão)
+const {conectar, desconectar} = require('./database.js')
+
+// Importação do Schema Clientes da camada model
+const clientModel = require('./src/models/Clientes.js')
 
 // Janela principal
 let win
@@ -63,7 +70,10 @@ function clientWindow() {
             //autoHideMenuBar: true,
             resizable: false,
             parent: main,
-            modal: true
+            modal: true,
+            webPreferences: {
+                preload: path.join(__dirname, 'preload.js')
+              }
         })
     }
   client.loadFile('./src/views/cliente.html')
@@ -127,6 +137,23 @@ app.on('window-all-closed', () => {
 
 //reduzir logs não críticos
 app.commandLine.appendSwitch('log-level', '3')
+
+// iniciar a conexão com o banco de dados (pedido direto do preload.js)
+ipcMain.on('db-connect', async (event) => {
+    let conectado = await conectar()
+    // se conectado for igual a true
+    if (conectado) {
+      // enviar uma mensagem para o renderizador trocar o ícone
+      setTimeout(() => {
+        event.reply('db-status', "conectado")
+      }, 500)
+    }
+  })
+  
+  // IMPORTANTE! Desconectar do banco de dados quando a aplicação for encerrada
+  app.on('before-quit', () => {
+    desconectar()
+  })
 
 // template do menu
 const template = [
@@ -216,3 +243,36 @@ ipcMain.on('client-window', () => {
   ipcMain.on('smartphone-window', () => {
   smartphoneWindow()
   })
+
+  //===============================================================
+    // == Clientes - CRUD Create
+    // recebimento do objeto que contem os dados do cliente
+ipcMain.on('new-client', async (event, client) => {
+    // Importante! Teste de recebimento dos dados do cliente
+console.log(client)
+try {
+    // criar uma nova de estrutura de dados usando a classe modelo.
+    // Atenção! Os atributos precisam ser identificados ao modelo de dados Cliente.js e os valores são definidos pelo
+    // conteúdo de objeto
+    const newClient = new clientModel({
+        nomeCliente: client.nameCli,
+        cpfCliente: client.cpfCli,
+        emailCliente: client.emailCli,
+        foneCliente: client.foneCli,
+        cepCliente: client.cepCli,
+        logradouroCliente: client.logradouroCli,
+        numeroCliente: client.numeroCli,
+        complementoCliente: client.complementCli,
+        bairroCliente: client.bairroCli,
+        cidadeCliente: client.cidadeCli,
+        ufCliente: client.ufCli
+    })
+        // salvar os dados do cliente no banco de dados
+    await newClient.save()
+} catch (error) {
+        console.log(error)
+    }
+})
+
+// == Fim - Clientes - CRUD Create
+// ============================================================
