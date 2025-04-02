@@ -1,6 +1,6 @@
 console.log("Processo principal")
 
-const { app, BrowserWindow, nativeTheme, Menu, ipcMain } = require('electron')
+const { app, BrowserWindow, nativeTheme, Menu, ipcMain, dialog, shell } = require('electron')
 
 // Esta linha está relacionada ao preload.js
 const path = require('node:path')
@@ -10,6 +10,12 @@ const {conectar, desconectar} = require('./database.js')
 
 // Importação do Schema Clientes da camada model
 const clientModel = require('./src/models/Clientes.js')
+
+// Importação do pacote jspdf (npm i jspdf)
+const { jspdf, default: jsPDF} = require('jspdf')
+
+// importação d biblioteca fs (nativa do JS) para manipulação de arquivo
+const fs = require('fs')
 
 // Janela principal
 let win
@@ -111,7 +117,10 @@ function smartphoneWindow() {
             //autoHideMenuBar: true,
             resizable: false,
             parent: main,
-            modal: true
+            modal: true,
+            webPreferences: {
+                preload: path.join(__dirname, 'preload.js')
+              }
         })
     }
     smartphone.loadFile('./src/views/smartphone.html')
@@ -169,6 +178,10 @@ const template = [
                 click: () => osWindow()
             },
             {
+                label: 'Smartphone',
+                click: () => smartphoneWindow()
+            },
+            {
                 type: 'separator'
             },
             {
@@ -182,7 +195,8 @@ const template = [
         label: 'Relatórios',
         submenu: [
             {
-                label: 'Clientes'
+                label: 'Clientes',
+                click: () =>  relatorioClientes()
             },
             {
                 label: 'OS abertas'
@@ -267,12 +281,84 @@ try {
         cidadeCliente: client.cidadeCli,
         ufCliente: client.ufCli
     })
-        // salvar os dados do cliente no banco de dados
+    // salvar os dados do cliente no banco de dados
     await newClient.save()
-} catch (error) {
-        console.log(error)
-    }
-})
+    //Mensagem de confirmação
+    dialog.showMessageBox({
+      //Customização
+      type: 'info',
+      title: "Aviso",
+      message: "Cliente adicionado com sucesso",
+      buttons: ['OK']
+    }).then((result) => {
+      //ação ao precionar o botão 
+      if (result.response === 0) {
+        // enviar um pedido para o renderizador limpar os campos e resetar as 
+        // configurações pré definidas (rótulo) preload.js
+        event.reply('reset-form')
+      }
 
-// == Fim - Clientes - CRUD Create
-// ============================================================
+    })
+  } catch (error) {
+    //se o codigo de erro for 11000 (cpf duflicado) enviar uma mensagem ao usuario
+    if (error.code === 11000) {
+      dialog.showMessageBox({
+        type: 'info',
+        title: "Atenção!",
+        message: "CPF já está cadastrado\nVerifique se digitou corretamente",
+        buttons: ['OK']
+      }).then((result) => {
+        if (result.response === 0) {
+          // limpar a caixa do input do cpf, focar esta caixa e deixar a borda em vermelho
+        }
+      })
+    }
+    console.log(error)
+  }
+})
+// -- Fim - Cliente - CRUD Create ===========
+// ==========================================
+
+    // ============================================================
+// == Relatórios de clientes ==================================
+
+async function relatorioClientes() {
+    try {
+        // Passo 1:
+        const clientes = await clientModel.find().sort({nomeCliente:1})
+        //teste de recebimento da listagem de cliente
+        //console.log(clientes)
+        //Passo 2: Formação do documento pdf
+        // p - portrait | l - landscape | mm e a4 (folha)
+        const doc = new jsPDF('p', 'mm', 'a4')
+        // definir o tamanho da fonte (tamanho equivalente ao word)
+        doc.setFontSize(16)
+        // escrever um texto (título)
+        doc.text("Relatório de clientes", 14, 20)//x, y (mm)
+        // inserir a data atual no relatorio
+        const dataAtual = new Date().toLocaleDateString('pt-BR')
+        doc.setFontSize(12)
+        doc.text(`Data: ${dataAtual}`, 160, 10)
+        /// variavel de apoio na formatação
+        let y = 45
+        doc.text("Nome", 14, y)
+        doc.text("Telefone", 80, y)
+        doc.text("E-mail", 130, y)
+        y += 5
+        //desenhar uma linha 
+        doc.setLineWidth(0.5) // expessura da linha 
+        doc.line(10, y, 200, y) // 10 (inicio) ---- 200 fim
+
+        //Definir o caminho do arquivo temporario
+        const tempDir = app.getPath('temp')
+        const filePath = path.join(tempDir, 'clientes.pdf')
+        // salvar temporariamente o arquivo
+        doc.save(filePath)
+        // abrir o arquivo no aplicativo padrão de leitura de pdf do computador do usuario
+        shell.openPath(filePath) 
+        // abrir o arquivo rio aplicativo padrão de leitura de pdf do computador
+        console.log(clientes)
+    } catch (error) {
+        console.log(error)
+    }    
+}

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relatorio do procedimento</title>
+    <title>Relatorio de Estatística</title>
      <!-- Bootstrap -->
      <link rel="stylesheet" href="../public/css/bootstrap.min.css">
      <!-- CSS personalizado -->
@@ -12,8 +12,75 @@
      <meta http-equiv="Content-Security-Policy" content="script-src 'self'">
 </head>
 <body>
-    
-
+    <div class="container">
+     <div class="container">
+          <h2 class="mt-4">Relatório de Estatísticas</h2>
+          <form id="frmRelatorio" class="mt-2 row g-3">
+              
+              <div class="col-md-6">
+                  <label for="searchClient" class="form-label">Período Analisado</label>
+                  <input type="text" class="form-control" id="searchClient" placeholder="Ex: Janeiro - Março" maxlength="30" spellcheck="false">
+              </div>
+              
+              <div class="col-md-6">
+                  <label for="totalOS" class="form-label">Total de Ordens de Serviço</label>
+                  <input type="number" class="form-control" id="totalOS" placeholder="Quantidade" required>
+              </div>
+              
+              <div class="col-md-6">
+                  <label for="servicosMaisSolicitados" class="form-label">Serviços Mais Solicitados</label>
+                  <textarea class="form-control" id="servicosMaisSolicitados" rows="3" placeholder="Lista dos serviços mais solicitados"></textarea>
+              </div>
+              
+              <div class="col-md-6">
+                  <label for="tempoMedio" class="form-label">Média de Tempo para Conclusão</label>
+                  <input type="text" class="form-control" id="tempoMedio" placeholder="Ex: 3 dias">
+              </div>
+              
+              <div class="col-md-6">
+                  <label for="osPorTipo" class="form-label">Quantidade de OS por Tipo de Aparelho</label>
+                  <textarea class="form-control" id="osPorTipo" rows="2" placeholder="Ex: Smartphones: 50 | Tablets: 20"></textarea>
+              </div>
+              
+              <div class="col-md-6">
+                  <label for="osPorStatus" class="form-label">Quantidade de OS por Status</label>
+                  <textarea class="form-control" id="osPorStatus" rows="3" placeholder="Ex: Em andamento: 10 | Concluídas: 40"></textarea>
+              </div>
+              
+              <div class="col-md-6">
+                  <label for="faturamentoTotal" class="form-label">Faturamento Total</label>
+                  <input type="text" class="form-control" id="faturamentoTotal" placeholder="R$ 0,00">
+              </div>
+              
+              <div class="col-md-6">
+                  <label for="lucroEstimado" class="form-label">Lucro Estimado</label>
+                  <input type="text" class="form-control" id="lucroEstimado" placeholder="R$ 0,00">
+              </div>
+              
+              <div class="col-md-6">
+                  <label for="tecnicoDestaque" class="form-label">Técnico com Maior Número de OS Concluídas</label>
+                  <input type="text" class="form-control" id="tecnicoDestaque" placeholder="Nome do técnico">
+              </div>
+              
+              <div class="col-md-6">
+                  <label for="modeloComum" class="form-label">Modelo de Aparelho Mais Comum</label>
+                  <input type="text" class="form-control" id="modeloComum" placeholder="Ex: iPhone 12">
+              </div>
+              
+              <div class="col-md-6">
+                  <label for="pecasUtilizadas" class="form-label">Quantidade de Peças Utilizadas</label>
+                  <textarea class="form-control" id="pecasUtilizadas" rows="3" placeholder="Ex: Tela: 20 | Bateria: 15"></textarea>
+              </div>
+              
+              <div class="col-md-12">
+                  <label for="observacoes" class="form-label">Observações Gerais</label>
+                  <textarea class="form-control" id="observacoes" rows="4" placeholder="Comentários adicionais"></textarea>
+              </div>
+              
+              <button type="submit" class="btn btn-success mt-3">Gerar Relatório</button>
+          </form>
+      </div>
+    </div>
 
      <!-- Bootstrap -->
      <script src="../public/js/bootstrap.min.js"></script>
