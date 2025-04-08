@@ -1,0 +1,27 @@
+Projeto individual - Sistema desktop para gestão de OS (Ordem de serviço)
+
+Atividade 1 (projeto)
+- Escolha do tema, análise de requisitos, criação e personalização do repositório GitHub, criação do projeto com uso do framework electron
+(personalizar as janelas e o menu, tela sobre, rodapé e escolher ícones de acordo com o projeto).
+Observação: tamanho máximo de uma janela: 1010 x 720
+- Criar as janelas do projeto (cliente, os etc...)
+- Criar o preload.js e o renderer.js e linkar as janelas aos botões
+
+Atividade 2 (telas)
+- Criar e linkar as telas do projeto
+- Tela principal: ícone de status do banco de dados
+- Cadastro de clientes com busca automática do CEP(se necessário no projeto)
+
+Atividade 3 (CRUD Create)
+- Cadastrar 10 clientes no banco de dados
+- Emitir (cadastrar) 10 OS(ordem de serviços) no banco de dados, com status diferentes (ex: aberta, aguardando peçac etc.)
+- Projetos que necessitam de outros cadastros (ex: veículos, funcionários etc.) cadastrar 10 de cada.
+
+Atividade 4 (Relatório 1 - clientes)
+- Cadastrar 30 clientes
+- Emitir um relatório de clientes (pdf)
+
+
+
+
+
