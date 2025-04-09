@@ -13,7 +13,7 @@ function buscarCEP() {
             //extração dos dados
             document.getElementById('inputAddressClient').value = dados.logradouro
             document.getElementById('inputNeighborhoodClient').value = dados.bairro
-            document.getElementById('inputCityClient').value = dados.cidade
+            document.getElementById('inputCityClient').value = dados.localidade
             document.getElementById('inputUFClient').value = dados.uf
         })
         .catch(error => console.log(error))

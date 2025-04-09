@@ -306,7 +306,7 @@ try {
     //se o codigo de erro for 11000 (cpf duflicado) enviar uma mensagem ao usuario
     if (error.code === 11000) {
       dialog.showMessageBox({
-        type: 'info',
+        type: 'error',
         title: "Atenção!",
         message: "CPF já está cadastrado\nVerifique se digitou corretamente",
         buttons: ['OK']
@@ -322,6 +322,8 @@ try {
 // -- Fim - Cliente - CRUD Create ===========
 // ==========================================
 
+
+
     // ============================================================
 // == Relatórios de clientes ==================================
 
@@ -330,7 +332,7 @@ async function relatorioClientes() {
         // Passo 1: Consultar o banco de dados e obter a listagem de clientes cadastrados por ordem alfabética
         const clientes = await clientModel.find().sort({ nomeCliente: 1 })
         // teste de recebimento da listagem de clientes
-        //console.log(clientes)
+        console.log(clientes)
         // Passo 2:Formatação do documento pdf
         // p - portrait | l - landscape | mm e a4 (folha A4 (210x297mm))
         const doc = new jsPDF('p', 'mm', 'a4')
@@ -406,4 +408,70 @@ async function relatorioClientes() {
 }
 
 // == Fim - relatório de clientes =============================
+// ============================================================
+
+// ============================================================
+// == Ordem de Serviço - CRUD Create
+// recebimento do objeto que contem os dados da ordem de serviço
+ipcMain.on('new-OS', async (event, os) => {
+    // Importante! Teste de recebimento dos dados da ordem de serviço
+    console.log(os)
+    // Cadastrar a estrutura de dados no banco de dados MongoDB
+    try {
+        // criar uma nova de estrutura de dados usando a classe modelo. Atenção! Os atributos precisam ser idênticos ao modelo de dados os.js e os valores são definidos pelo conteúdo do objeto cliente
+        const newOs = new osModel({
+            statusOS: os.StatusOS,
+            modelocellOS: os.modeloOS,
+            tecnicoOS: os.tecnicoOS,
+            diagnosticoOS: os.diagnosticoOS, 
+            imeiOS: os.ImeiOS,
+            descricaoOS: os.servicoOS,
+            valorOS: os.valorOS,             
+            dataFS: os.dataFS,
+            corOS: os.corOS,
+            responsavelOS: os.responsavelOS,
+            dataOS: os.dataOS
+        })        
+        
+        
+        // salvar os dados do os no banco de dados
+        await newOs.save()
+        // Mensagem de confirmação
+        dialog.showMessageBox({
+            // custon
+            type: 'info',
+            title: "Aviso",
+            message: "OS cadastrada com sucesso.",
+            buttons: ['OK']
+        }).then((result) => {
+            //ação ao pressionar o botão (result = 0)
+            if (result.response === 0) {
+                // pedido para o render limpar os campos e fazer um reset nas config 
+                event.reply('reset-form')
+            }
+
+        })
+    } catch (error) {
+        // se o código de erro for 11000(cpf duplicado) enviar uma mensagem ao usuario
+        if (error.code === 11000) {
+            dialog.showMessageBox({
+                type: 'error',
+                title: "Atenção",
+                message: "CPF já cadastrado.\n",
+                buttons: ['OK']
+            }).then((result) => {
+                if (result.response === 0) {
+                    //Limpar a caixa de input do CPF, focar esta caixa e deixar a borda em vermelho
+
+
+                }
+            })
+        }
+        console.log(error)
+    }
+})
+
+
+
+// == Ordem de Serviço - CRUD Create
 // ============================================================

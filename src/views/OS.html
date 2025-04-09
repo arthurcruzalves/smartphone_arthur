@@ -17,42 +17,43 @@
             <form id="frmOS" class="mt-2 row g-3">
                 <!--buscar cliente-->
                 <div class="col-md-6">
-                    <input type="text" class="form-control" id="searchClient" placeholder="Nome do Cliente ou Ordem de Serviço" maxlength="30" spellcheck="false"  >
+                    <input type="text" class="form-control" id="inputSearchOS" placeholder="Nome do Cliente ou Ordem de Serviço" maxlength="30" spellcheck="false"  >
                 </div>
                 <div class="col-md-4">
                     <button type="button" class="btn btn-dark" id="btnRead" onclick="searchOS()" >Buscar</button>
                 </div>
+
                 <hr class="mt-4 border border-primary border -1" >
                 <div class="col-md-3">
                     <label for="inputosClient" class="form-label">Ordem de Serviço</label>
                     <input type="text" class="form-control" id="inputenderecoClient" placeholder="Número da OS" required maxlength="30">
                 </div>
-                 <!-- Nome do Cliente -->
-            <div class="col-md-6">
-                <label for="inputNameClient" class="form-label">Nome</label>
-                <input type="text" class="form-control" id="inputNameClient" spellcheck="false" required maxlength="30">
-            </div>
 
-            <!-- CPF -->
-            <div class="col-md-4">
-                <label for="inputCPFClient" class="form-label">CPF</label>
-                <input type="text" class="form-control" id="inputCPFClient" spellcheck="false" maxlength="15" >
-            </div>
+                <div class="col-md-5">
+                    <label for="inputNameClientOS" class="form-label">Nome</label>
+                    <input type="text" class="form-control" id="inputNameClientOS" spellcheck="false" maxlength="30" disabled>
+                </div>
+    
+                <!-- Telefone -->
+                <div class="col-md-3">
+                    <label for="inputPhoneClientOS" class="form-label">Telefone</label>
+                    <input type="text" class="form-control" id="inputPhoneClientOS" spellcheck="false" maxlength="15"
+                        disabled>
+                </div>
+    
+                <!-- CPF -->
+                <div class="col-md-4">
+                    <label for="inputCPFClientOS" class="form-label">CPF</label>
+                    <input type="text" class="form-control" id="inputCPFClientOS" spellcheck="false" maxlength="15" disabled>
+                </div>
+    
+                <!-- Linha -->
+                <hr class="mt-4 border border-secondary border -1">
 
-             <!-- Telefone -->
-             <div class="col-md-4">
-                <label for="inputTelefoneClient" class="form-label">Telefone</label>
-                <input type="text" class="form-control" id="inputTelefoneClient" spellcheck="false" maxlength="15" required>
-               </div>
-
-
-            <!-- Linha -->
-            <hr class="mt-4 border border-primary border -1" >
-
-            <!-- Status -->
-            <div class="col-md-4">
+               <!-- Status -->
+               <div class="col-md-3">
                 <label class="form-label">Status da OS</label>
-                <select class="form-select" id="osStatus">
+                <select class="form-select" id="inputosStatusOS">
                     <option value="">Selecione</option>
                     <option>Aberta</option>
                     <option>Em andamento</option>
@@ -63,56 +64,66 @@
             </div>
 
                 <div class="col-md-3">
-                    <label for="inputdata_servico" class="form-label">Data da Ordem de Serviço</label>
-                    <input type="date" class="form-control" id="inputdata_servico" required>
+                    <label for="txtDataOS" class="form-label">Data da Ordem de Serviço</label>
+                    <input type="date" class="form-control" id="txtDataOS" required>
                 </div>
+
                 <div class="col-md-3">
-                    <label for="inputstatus" class="form-label">Status</label>
-                    <select class="form-select" id="inputstatus" required>
+                    <label for="inputosStatusOS" class="form-label">Status</label>
+                    <select class="form-select" id="inputosStatusOS" required>
                         <option value="pendente">Pendente</option>
                         <option value="em_andamento">Em Andamento</option>
                         <option value="concluido">Concluído</option>
                         <option value="cancelado">Cancelado</option>
                     </select>
                 </div>
+
+                <!--Imei-->
                 <div class="col-md-3">
-                    <label for="inputdata_servico" class="form-label">Data da Finalização Serviço</label>
-                    <input type="date" class="form-control" id="inputdata_servico">
+                    <label class="form-label" for="inputIMEIOS">Número do Imei</label>
+                    <input type="text" class="form-control" id="inputIMEIOS" maxlength="20">
                 </div>
-              
-                <div class="col-md-6">
-                    <label for="inputnomeClient" class="form-label">Responsável</label>
-                    <input type="text" class="form-control" id="inputnomeClient" placeholder="Cliente" required maxlength="30">
-                </div>
-                <div class="col-md-3">
-                    <label for="inputresponsavel" class="form-label">Modelo do Smartphone</label>
-                    <input type="text" class="form-control" id="inputresponsavel" placeholder="Smartphone/Tablet" required maxlength="30">
+
+                <div class="md-5">
+                    <label for="inputservicoOS" class="form-label">Descrição do Serviço</label>
+                    <textarea input class="form-control" id="inputservicoOS" rows="3" placeholder="Descrição detalhada do serviço" required></textarea>
                 </div>
 
                 <div class="col-md-3">
-                    <label for="inputcor" class="form-label">Cor do celular</label>
-                    <input type="text" class="form-control" id="inputcor" placeholder="Smartphone/Tablet" required maxlength="30">
+                    <label for="inputdatafinal" class="form-label">Data da Finalização Serviço</label>
+                    <input type="date" class="form-control" id="inputdatafinal">
+                </div>
+              
+                <div class="col-md-4">
+                    <label for="inputResponsavelOS" class="form-label">Responsável</label>
+                    <input type="text" class="form-control" id="inputResponsavelOS" placeholder="Cliente" required maxlength="30">
                 </div>
                 <div class="col-md-3">
-                    <label for="inputtecnico" class="form-label">Tecnico Responsável</label>
-                    <input type="text" class="form-control" id="inputtecnico" placeholder="" required maxlength="30">
+                    <label for="inputmodelcellOS" class="form-label">Modelo do Aparelho</label>
+                    <input type="text" class="form-control" id="inputmodelcellOS" placeholder="Smartphone/Tablet" required maxlength="30">
+                </div>
+
+                <div class="col-md-3">
+                    <label for="inputCorOS" class="form-label">Cor do Aparelho</label>
+                    <input type="text" class="form-control" id="inputCorOS" placeholder="Smartphone/Tablet" required maxlength="30">
                 </div>
                 <div class="col-md-3">
-                    <label for="inputdiagnostico" class="form-label">Diagnóstico Tecnico</label>
-                    <input type="text" class="form-control" id="inputdiagnostico" placeholder="" required maxlength="30">
+                    <label for="inputTecnicoOS" class="form-label">Tecnico Responsável</label>
+                    <input type="text" class="form-control" id="inputTecnicoOS" placeholder="" required maxlength="30">
                 </div>
-    
-                <div class="md-5">
-                    <label for="inputservico" class="form-label">Descrição do Serviço</label>
-                    <textarea class="form-control" id="servico" rows="3" placeholder="Descrição detalhada do serviço" required></textarea>
+                <div class="col-md-3">
+                    <label for="inputDiagnosticoOS" class="form-label">Diagnóstico Tecnico</label>
+                    <input type="text" class="form-control" id="inputDiagnosticoOS" placeholder="" required maxlength="30">
                 </div>
-                <div class="md-3">
-                    <label for="inputobservacao" class="form-label">Observações</label>
-                    <textarea class="form-control" id="inputobservacao" rows="5" placeholder="Observações adicionais"></textarea>
+
+
+                <div class="col-md-3">
+                    <label class="form-label" id="inputValorOS">Valor</label>
+                    <input input type="text" class="form-control" id="inputValorOS" maxlength="20" >
                 </div>
     
                 <div class="mt-4 d-flex justify-content-center gap-1">
-                    <button type="button" class="btn btn-success">Gerar OS</button>
+                    <button type="submit" class="btn btn-success">Gerar OS</button>
                     <button type="button" class="btn btn-primary">Buscar OS</button>
                     <button type="button" class="btn btn-warning">Editar OS</button>
                     <button type="button" class="btn btn-danger">Excluir OS</button>
@@ -122,6 +133,8 @@
     
     <!-- Bootstrap -->
     <script src="../public/js/bootstrap.min.js"></script>
+    <!-- renderizador -->
+    <script src="../views/rendereOS.js"></script>
   
 </body>
 </html>

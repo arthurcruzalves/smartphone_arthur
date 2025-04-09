@@ -16,5 +16,6 @@ contextBridge.exposeInMainWorld('api', {
     smartphoneWindow: () => ipcRenderer.send('smartphone-window'),
     dbStatus: (message) => ipcRenderer.on('db-status', message),
     newClient: (client) => ipcRenderer.send('new-client', client),
+    newOS: (os) => ipcRenderer.send('new-OS', os),
     resetForm: (args) => ipcRenderer.on('reset-form', args)
 })

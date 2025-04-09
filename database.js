@@ -29,7 +29,7 @@ const conectar = async () => {
             return true // para o main identificar a conexão estabelecida com sucesso
         } catch (error) {
             // se o codigo de erro
-            if (error.code = 8000) {
+            if (error.code === 8000) {
                 console.log("Erro de autenticação")
             } else {
                 console.log(error)
