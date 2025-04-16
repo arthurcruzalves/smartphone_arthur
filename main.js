@@ -420,12 +420,12 @@ ipcMain.on('new-OS', async (event, os) => {
     try {
         // criar uma nova de estrutura de dados usando a classe modelo. Atenção! Os atributos precisam ser idênticos ao modelo de dados os.js e os valores são definidos pelo conteúdo do objeto cliente
         const newOs = new osModel({
-            statusOS: os.StatusOS,
-            modelocellOS: os.modeloOS,
+            statusOS: os.statusOS,
+            modelocellOS: os.modelocellOS,
             tecnicoOS: os.tecnicoOS,
             diagnosticoOS: os.diagnosticoOS, 
-            imeiOS: os.ImeiOS,
-            descricaoOS: os.servicoOS,
+            imeiOS: os.imeiOS,
+            descricaoOS: os.descricaoOS,
             valorOS: os.valorOS,             
             dataFS: os.dataFS,
             corOS: os.corOS,
@@ -433,12 +433,11 @@ ipcMain.on('new-OS', async (event, os) => {
             dataOS: os.dataOS
         })        
         
-        
         // salvar os dados do os no banco de dados
         await newOs.save()
         // Mensagem de confirmação
         dialog.showMessageBox({
-            // custon
+            // custom
             type: 'info',
             title: "Aviso",
             message: "OS cadastrada com sucesso.",
@@ -449,7 +448,6 @@ ipcMain.on('new-OS', async (event, os) => {
                 // pedido para o render limpar os campos e fazer um reset nas config 
                 event.reply('reset-form')
             }
-
         })
     } catch (error) {
         // se o código de erro for 11000(cpf duplicado) enviar uma mensagem ao usuario
@@ -463,13 +461,14 @@ ipcMain.on('new-OS', async (event, os) => {
                 if (result.response === 0) {
                     //Limpar a caixa de input do CPF, focar esta caixa e deixar a borda em vermelho
 
-
+                    event.reply('cpf-duplicado')
                 }
             })
         }
         console.log(error)
     }
 })
+
 
 
 
