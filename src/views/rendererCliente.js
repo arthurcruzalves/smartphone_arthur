@@ -47,7 +47,31 @@ let bairroClient = document.getElementById('inputNeighborhoodClient')
 let cityClient = document.getElementById('inputCityClient')
 let ufClient = document.getElementById('inputUFClient')
 
-// ===================================================================
+// ==========================================================
+// == Manipulação da tecla Enter ============================
+
+// Função para manipular o evento da tecla Enter
+function teclaEnter(event) {
+    // se a tecla Enter for pressionada
+    if (event.key === "Enter") {
+        event.preventDefault() // ignorar o comportamento padrão
+        // associar o Enter a busca pelo cliente
+        buscarCliente()
+    }
+}
+
+// Função para restaurar o padrão da tecla Enter (submit)
+function restaurarEnter() {
+    frmClient.removeEventListener('keydown', teclaEnter)
+}
+
+// "Escuta do evento Tecla Enter"
+frmClient.addEventListener('keydown', teclaEnter)
+
+// == Fim - manipulação tecla Enter ==========================
+// ===========================================================
+
+
 // == CRUD Create/Update =============================================
 
 // Evento associado ao botão submit (uso das validações do html)
@@ -80,6 +104,69 @@ frmClient.addEventListener('submit', async (event) => {
 
 // == Fim CRUD Create/Update =========================================
 // ===================================================================
+
+// == CRUD Read =====================================================
+function buscarCliente() {
+     //console.log("Teste do botão buscar")
+    // Passo 1: capturar o nome do cliente
+    let name = document.getElementById('searchClient').value
+    console.log(name) // teste do passo 1
+
+
+    if (name == "") {
+        //enviar um alerta para o usuario
+        api.validateSearch()
+        foco.focus()
+        } else {
+            api.searchName(name) // Passo 2: envio do nome ao main
+            // recebimento dos dados do cliente
+            api.renderClient((event, dataClient) => {
+                console.log(dataClient) // teste do passo 5
+            // passo 6 renderizador os dados do cliente no formulario
+                // - Criar um vetor global para manipulação dos dados
+                // - Criar uma constatnte para converter os dados
+                // (string) para o formato JASON
+                // usar o laço fotEach para percorre o vetor e setar os campos 
+                // (caixas de texto) do formulario
+                const dadosClientes =  JSON.parse(dataClient)
+                // atribuir ao vetor os dados do cliente
+                arrayClient = dadosClientes
+                // extrair os dados do cliente
+                arrayClient.forEach((c) =>{
+                    nameClient.value = c.nomeCliente,
+                    cpfClient.value = c.cpfCliente,
+                    emailClient.value = c.emailCliente,
+                    phoneClient.value = c.cepCliente,
+                    cepClient.value = c.cepCliente,
+                    addressClient.value = c.logradouroCliente,
+                    numberClient.value = c.numeroCliente,
+                    complementClient.value = c.complementoCliente,
+                    bairroClient.value = c.bairroCliente,
+                    cityClient.value = c.cidadeCliente,
+                    ufClient.value = c.ufCliente
+                })
+            })
+        }
+
+
+}
+
+
+// setar o cliente não cadastrado (recortar do campo de busca e colar no campo nome)
+api.setClient((args) => {
+    // criar uma vaiave para armazenar o valor digitado no campo de busca (nome, cpf)
+    let campoBusca = document.getElementById('searchClient').value
+    // foco no campo de nome do cliente
+    nameClient.focus()
+    // remover o valor digitado no campo de busca
+    foco.value = ""
+    // preencher o campo do nome cliente
+    nameClient.value = campoBusca
+})
+
+// == Fim CRUD Read =========================================
+// ===================================================================
+
 
 // ===================================================================
 // == Reset form =====================================================

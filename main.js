@@ -469,8 +469,64 @@ ipcMain.on('new-OS', async (event, os) => {
     }
 })
 
-
-
-
 // == Ordem de Serviço - CRUD Create
 // ============================================================
+
+// Validação de busca (obrigatório)
+ipcMain.on('validate-search', () => {
+    dialog.showMessageBox({
+        type: 'warning',
+        title: 'Atenção',
+        message: "Preencha o campo de busca",
+        buttons: ['OK']
+    })
+})
+
+// == CRUD Read =====================================================
+ipcMain.on('search-name', async (event, name) => {
+    //console.log("teste IPC search-name")
+    //console.log(name) // teste do passo 2 (importante!)
+    // Passo 3 e 4 busca dos dados do cliente no banco
+    // find({nomeCliente: name}) - busca
+    //
+    try{
+        const dataClient = await clientModel.find({
+            nomeCliente: new RegExp(name, 'i')
+        })
+        console.log(dataClient) // teste passos 3 e 4 (importante!)
+
+        // melhoria da experiência do usuario (se o cliente não estiver cadastrado, alertar o usuario e questionar se ele quer cadastrar este novo cliente. Se não quiser cadastrar, limpar os campos, se quiser cadastra recortar o nome do cliente do campo de busca  e colar no campo nome)
+
+        // se o vetor estiver vazio [] (cliente não cadastrado)
+        if (dataClient.length === 0) {
+            dialog.showMessageBox({
+                type: 'warning',
+                title: "Avisos",
+                message: "Cliente não cadastrado. \nDeseja cadastra esse cliente?",
+                defaultId: 0, // botão 0
+                buttons: ['Sim', 'Não'] // [0 ,1]
+            }).then((result) => {
+                if( result.response === 0) {
+                    // enviar ao renderizador um pedido para setar os campos (recortar os campos)
+                    event.reply('set-client')
+                } else {
+                    // limpar o formulario
+                    event.reply('reset-form')
+                }
+            })
+        }
+
+        // Passo 5:
+        // enviando os dados do cliente ao rendererCliente
+        // OBS: IPC só trabalha com string, então é necessário converter o JSON
+        // para string JSON.stringify(dataClient)
+        event.reply('render-client', JSON.stringify(dataClient))
+
+    } catch (error) {
+        console.log(error)
+    }
+
+})
+
+// == Fim CRUD Read =========================================
+// ===================================================================
