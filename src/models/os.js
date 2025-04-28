@@ -16,35 +16,22 @@ const osSchema = new Schema({
     tecnicoOS: {
         type: String
     },
-    responsavelOS: {
+    diagnoticoOS: {
         type: String
     },
-    corOS: {
-        type: String
-    },
-    diagnosticoOS: {
-        type: String
-    },      
     imeiOS: {
-        type: String,
+        type: Number,
         unique: true
     },
     descricaoOS: {
         type: String
     },
-    dataOS: {
-        type: String
-    },
-    dataFS: {
-        type: String
-    },
-    valorOS: {
+    valorOs: {
         type: Number
     }
 }, { versionKey: false }) // não versionar os dados armazenados 
 
-// exportar para o main o módulo de dados
-// OBS: 'os' será o nome da coleção ("tabela")
-
+// exportar para o main o moulo de dados
+//OBS: Clientes será o nome da coleção "tabelas"
 
 module.exports = model('os', osSchema)
