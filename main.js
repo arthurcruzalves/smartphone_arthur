@@ -12,13 +12,14 @@ const {conectar, desconectar} = require('./database.js')
 const clientModel = require('./src/models/Clientes.js')
 
 // Importação do Schema OS da camada model
-
+const osModel = require('./src/models/os.js')
 
 // Importação do pacote jspdf (npm i jspdf)
 const { jspdf, default: jsPDF} = require('jspdf')
 
 // importação d biblioteca fs (nativa do JS) para manipulação de arquivo
 const fs = require('fs')
+const { error } = require('node:console')
 
 // Janela principal
 let win
@@ -418,8 +419,56 @@ async function relatorioClientes() {
 // recebimento do objeto que contem os dados da ordem de serviço
 
 ipcMain.on('new-OS', async (event, os) => {
-    console.log(os)
-})
+    // Importante! Teste de recebimento dos dados da ordem de serviço
+    console.log(os) 
+    // Cadastrar a estrutura de dados no banco de dados MongoDB
+    try{
+        // criar uma nova de estrutura de dados usando a classe modelo. Atenção! Os atributos precisam ser idênticos ao modelo de dados OS.js e os valores são definidos pelo conteúdo do objeto cliente
+        const newOS = new osModel({
+            statusOS: os.StatusOS,
+            modelocellOS: os.modelocellOS,
+            tecnicoOS: os.tecnicoOS,
+            diagnoticoOS: os.diagnoticoOS,
+            imeiOS: os.ImeiOS,
+            descricaoOS: os.servicoOS,
+            valorOs: os.valorOs
+        })
+        // salvar os dados do os no banco de dados
+        await newOS.save()
+
+        // Mensagem de confirmação
+        dialog.showMessageBox({
+            // custon
+            type: 'info',
+            title: "Aviso",
+            message: "Ordem de serviço registrada com sucesso!",
+            buttons: ['OK']
+          }).then((result) => {
+             //ação ao pressionar o botão (result = 0)
+            if (result.response === 0) {
+                // pedido para o render limpar os campos e fazer um reset nas config 
+              event.reply('reset-form');
+            }
+          });
+        } catch (error) {
+            // se o código de erro for 11000(cpf duplicado) enviar uma mensagem ao usuario
+            if (error.code === 11000) {
+                dialog.showMessageBox({
+                    type: 'error',
+                    title: "Atenção",
+                    message: "CPF já cadastrado.\n",
+                    buttons: ['OK']
+                }).then((result) => {
+                    if (result.response === 0) {
+                        //Limpar a caixa de input do CPF, focar esta caixa e deixar a borda em vermelho
+    
+    
+                    }
+                })
+            }
+            console.log(error)
+        }
+    })
 
 // == Ordem de Serviço - CRUD Create
 // ============================================================
@@ -482,3 +531,33 @@ ipcMain.on('search-name', async (event, name) => {
 
 // == Fim CRUD Read =========================================
 // ===================================================================
+
+
+//===================================================================
+// CRUD Delete =======================================================
+ipcMain.on('delete-client', async (event, id) => {
+    console.log(id) // teste do passo 2: recebimento do id
+    try {
+        // importante - confirmar a exclusão
+        // client é o nome da variavel que responde a janela
+        const {response} = await dialog.showMessageBox(client, {
+            type: 'warning',
+            title: "Atenção!",
+            message: "Deseja excluir esse cliente?\nEsta ação não poderá ser desfeita.",
+            buttons:['Cancelar', 'Excluir'] //[0, 1]
+        })
+        if (response === 1) {
+            //Passo 3 - Excluir o registro do cliente
+            const delClient = await clientModel.findByIdAndDelete(id)
+            event.reply('reset-form')
+        }
+
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+
+
+// Fim do CRUD Delete ================================================
+// ==================================================================

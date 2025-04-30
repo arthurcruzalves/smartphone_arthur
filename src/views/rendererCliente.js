@@ -144,6 +144,12 @@ function buscarCliente() {
                     bairroClient.value = c.bairroCliente,
                     cityClient.value = c.cidadeCliente,
                     ufClient.value = c.ufCliente
+                    // bloqueio do botão adicionar
+                    btnCreate.disabled = true
+                    // desbloqueio dos botões editar e excluir
+                    btnDelete.disabled = false
+                    btnUpdate.disabled = false
+
                 })
             })
         }
@@ -237,3 +243,13 @@ cpfClient.addEventListener("blur", validarCPF); // Validação ao perder o foco
 
 
 // == CRUD Creat/Update ==================================
+
+//===================================================================
+// CRUD Delete =======================================================
+function excluirCliente(){
+    console.log(id)
+    api.deleteClient(id.value)
+}
+
+// Fim do CRUD Delete ================================================
+// ==================================================================
