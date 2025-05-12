@@ -21,6 +21,11 @@ const { jspdf, default: jsPDF} = require('jspdf')
 const fs = require('fs')
 const { error } = require('node:console')
 
+// Importação do recurso 'electron-prompt' (dialog de input)
+// 1º instalar o recurso: npm i electron-prompt
+const prompt = require('electron-prompt')
+
+
 // Janela principal
 let win
 const createWindow = () => {
@@ -491,9 +496,15 @@ ipcMain.on('search-name', async (event, name) => {
     // find({nomeCliente: name}) - busca
     //
     try{
-        const dataClient = await clientModel.find({
-            nomeCliente: new RegExp(name, 'i')
-        })
+        /*const dataClient = await clientModel.find({
+      nomeCliente: new RegExp(name, 'i')
+    })*/
+    const dataClient = await clientModel.find({
+        $or: [
+          { nomeCliente: new RegExp(name, 'i') },
+          { cpfCliente: new RegExp(name, 'i') }
+        ]
+      })
         console.log(dataClient) // teste passos 3 e 4 (importante!)
 
         // melhoria da experiência do usuario (se o cliente não estiver cadastrado, alertar o usuario e questionar se ele quer cadastrar este novo cliente. Se não quiser cadastrar, limpar os campos, se quiser cadastra recortar o nome do cliente do campo de busca  e colar no campo nome)
@@ -561,3 +572,113 @@ ipcMain.on('delete-client', async (event, id) => {
 
 // Fim do CRUD Delete ================================================
 // ==================================================================
+
+
+// ============================================================
+// == CRUD Update =============================================
+
+ipcMain.on('update-client', async (event, client) => {
+    console.log(client) //teste importante (recebimento dos dados do cliente)
+    try {
+        // criar uma nova de estrutura de dados usando a classe modelo. Atenção! Os atributos precisam ser idênticos ao modelo de dados Clientes.js e os valores são definidos pelo conteúdo do objeto cliente
+        const updateClient = await clientModel.findByIdAndUpdate(
+            client.idCli,
+            {
+                nomeCliente: client.nameCli,
+                cpfCliente: client.cpfCli,
+                emailCliente: client.emailCli,
+                foneCliente: client.phoneCli,
+                cepCliente: client.cepCli,
+                logradouroCliente: client.addressCli,
+                numeroCliente: client.numberCli,
+                complementoCliente: client.complementCli,
+                bairroCliente: client.neighborhoodCli,
+                cidadeCliente: client.cityCli,
+                ufCliente: client.ufCli
+            },
+            {
+                new: true
+            }
+        )
+        // Mensagem de confirmação
+        dialog.showMessageBox({
+            //customização
+            type: 'info',
+            title: "Aviso",
+            message: "Dados do cliente alterados com sucesso",
+            buttons: ['OK']
+        }).then((result) => {
+            //ação ao pressionar o botão (result = 0)
+            if (result.response === 0) {
+                //enviar um pedido para o renderizador limpar os campos e resetar as configurações pré definidas (rótulo 'reset-form' do preload.js
+                event.reply('reset-form')
+            }
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+// == Fim - CRUD Update =======================================
+// ============================================================
+
+//************************************************************/
+//*******************  Ordem de Serviço  *********************/
+//************************************************************/
+
+
+// ============================================================
+// == Buscar OS ===============================================
+
+ipcMain.on('search-os', (event) => {
+    //console.log("teste: busca OS")
+    prompt({
+        title: 'Buscar OS',
+        label: 'Digite o número da OS:',
+        inputAttrs: {
+            type: 'text'
+        },
+        type: 'input',
+        width: 400,
+        height: 200
+    }).then((result) => {
+        if (result !== null) {
+            console.log(result)
+            //buscar a os no banco pesquisando pelo valor do result (número da OS)
+
+        }
+    })
+})
+
+// == Fim - Buscar OS =========================================
+// ============================================================
+
+
+// ============================================================
+// == CRUD Create - Gerar OS ==================================
+
+
+// == Fim - CRUD Create - Gerar OS ===========================
+// ============================================================
+
+
+
+// ============================================================
+// == Buscar cliente para vincular na OS(busca estilo Google) = 
+
+ipcMain.on('search-clients', async (event) => {
+    try {
+        // buscar no banco os clientes pelo nome em ordem alfabética
+        const clients = await clientModel.find().sort({ nomeCliente: 1 })
+        //console.log(clients) // teste do passo 2
+        // Passo 3: Envio dos clientes para o renderizador
+        // Obs: não esquecer de converter para String
+        event.reply('list-clients', JSON.stringify(clients))
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+// == Fim - Busca Cliente (estilo Google) =====================
+// ============================================================

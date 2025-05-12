@@ -37,9 +37,17 @@
                             <img src="../public/img/tecnico.png" alt="lupa" width="20">
                         </span>
                     </div>
+                    <!-- Lista de sugestões - estilo Google -->
+                    <ul id="viewListSuggestion" class="list-group position-absolute w-100"></ul>
                 </div>
 
+                <!-- Id -->
+            <div class="col-md-4">
+                <label for="inputIdClient" class="form-label">Id do cliente</label>
+                <input type="text" class="form-control" id="inputIdClient" spellcheck="false" maxlength="15" disabled>
+            </div>
 
+                <!-- Nome -->
                 <div class="col-md-5">
                     <label for="inputNameClientOS" class="form-label">Nome</label>
                     <input type="text" class="form-control" id="inputNameClientOS" spellcheck="false" maxlength="30"
@@ -59,6 +67,8 @@
                     <input type="text" class="form-control" id="inputCPFClientOS" spellcheck="false" maxlength="15"
                         disabled>
                 </div>
+
+                <input type="text" id="idClient"> <!-- oculto -->
 
                 <!-- Linha -->
                 <hr class="mt-4 border border-secondary border -1">
@@ -110,7 +120,7 @@
 
                 <div class="mt-4 d-flex justify-content-center gap-1">
                     <button type="submit" class="btn btn-success" id="btnCreate">Gerar OS</button>
-                    <button type="button" class="btn btn-primary">Buscar OS</button>
+                    <button type="button" class="btn btn-primary" onclick="findOS()">Buscar OS</button>
                     <button type="button" class="btn btn-warning" id="btnUpdate">Editar OS</button>
                     <button type="button" class="btn btn-danger" id="btnDelete">Excluir OS</button>
                     <button type="button" class="btn btn-secondary">Imprimir OS</button>
