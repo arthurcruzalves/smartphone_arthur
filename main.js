@@ -5,32 +5,32 @@ const { app, BrowserWindow, nativeTheme, Menu, ipcMain, dialog, shell } = requir
 // Esta linha está relacionada ao preload.js
 const path = require('node:path')
 
-// Importação dos métodos conectar e desconectar (modulo de conexão)
-const {conectar, desconectar} = require('./database.js')
+// Importação dos métodos conectar e desconectar (módulo de conexão)
+const { conectar, desconectar } = require('./database.js')
+
+// importar mongoose (validação do id na OS)
+const mongoose = require('mongoose')
 
 // Importação do Schema Clientes da camada model
 const clientModel = require('./src/models/Clientes.js')
 
 // Importação do Schema OS da camada model
-const osModel = require('./src/models/os.js')
+const osModel = require('./src/models/OS.js')
 
 // Importação do pacote jspdf (npm i jspdf)
-const { jspdf, default: jsPDF} = require('jspdf')
+const { jspdf, default: jsPDF } = require('jspdf')
 
-// importação d biblioteca fs (nativa do JS) para manipulação de arquivo
+// Importação da biblioteca fs (nativa do JavaScript) para manipulação de arquivos (no caso arquivos pdf)
 const fs = require('fs')
-const { error } = require('node:console')
 
-// Importação do recurso 'electron-prompt' (dialog de input)
-// 1º instalar o recurso: npm i electron-prompt
+// importação do pacote electron-prompt (dialog de input) - npm i electron-prompt
 const prompt = require('electron-prompt')
-
 
 // Janela principal
 let win
 const createWindow = () => {
     // a linha abaixo define o tema (claro ou escuro)
-    nativeTheme.themeSource = 'dark' //(dark ou light)
+    nativeTheme.themeSource = 'light' //(dark ou light)
     win = new BrowserWindow({
         width: 800,
         height: 600,
@@ -39,7 +39,7 @@ const createWindow = () => {
         resizable: false,
         //ativação do preload.js
         webPreferences: {
-          preload: path.join(__dirname, 'preload.js')
+            preload: path.join(__dirname, 'preload.js')
         }
     })
 
@@ -47,7 +47,6 @@ const createWindow = () => {
     Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 
     win.loadFile('./src/views/index.html')
-
 }
 
 // Janela sobre
@@ -76,67 +75,47 @@ function aboutWindow() {
 // Janela cliente
 let client
 function clientWindow() {
-    nativeTheme.themeSource ='light'
+    nativeTheme.themeSource = 'light'
     const main = BrowserWindow.getFocusedWindow()
-    if(main) {
+    if (main) {
         client = new BrowserWindow({
             width: 1010,
-            height: 720,
+            height: 680,
             //autoHideMenuBar: true,
-            resizable: false,
+            //resizable: false,
             parent: main,
             modal: true,
+            //ativação do preload.js
             webPreferences: {
                 preload: path.join(__dirname, 'preload.js')
-              }
+            }
         })
     }
-  client.loadFile('./src/views/cliente.html')
-  client.center()
+    client.loadFile('./src/views/cliente.html')
+    client.center() //iniciar no centro da tela   
 }
 
 // Janela OS
-let OS
+let os
 function osWindow() {
-    nativeTheme.themeSource ='light'
-    const main = BrowserWindow.getFocusedWindow()
-    if(main) {
-        OS = new BrowserWindow({
-            width: 1110,
-            height: 820,
-            //autoHideMenuBar: true,
-            resizable: false,
-            parent: main,
-            modal: true,
-            webPreferences: {
-                preload: path.join(__dirname, 'preload.js')
-              }
-        })
-    }
-  OS.loadFile('./src/views/os.html')
-  OS.center()
-}
-
-// Janela smartphone
-let smartphone
-function smartphoneWindow() {
     nativeTheme.themeSource = 'light'
     const main = BrowserWindow.getFocusedWindow()
-    if(main) {
-        smartphone = new BrowserWindow({
+    if (main) {
+        os = new BrowserWindow({
             width: 1010,
             height: 720,
-            //autoHideMenuBar: true,
+            // autoHideMenuBar: true,
             resizable: false,
             parent: main,
             modal: true,
+            //ativação do preload.js
             webPreferences: {
                 preload: path.join(__dirname, 'preload.js')
-              }
+            }
         })
     }
-    smartphone.loadFile('./src/views/smartphone.html')
-    smartphone.center()
+    os.loadFile('./src/views/os.html')
+    os.center()
 }
 
 // Iniciar a aplicação
@@ -156,7 +135,7 @@ app.on('window-all-closed', () => {
     }
 })
 
-//reduzir logs não críticos
+// reduzir logs não críticos
 app.commandLine.appendSwitch('log-level', '3')
 
 // iniciar a conexão com o banco de dados (pedido direto do preload.js)
@@ -164,17 +143,17 @@ ipcMain.on('db-connect', async (event) => {
     let conectado = await conectar()
     // se conectado for igual a true
     if (conectado) {
-      // enviar uma mensagem para o renderizador trocar o ícone
-      setTimeout(() => {
-        event.reply('db-status', "conectado")
-      }, 500)
+        // enviar uma mensagem para o renderizador trocar o ícone, criar um delay de 0.5s para sincronizar a nuvem
+        setTimeout(() => {
+            event.reply('db-status', "conectado")
+        }, 500) //500ms        
     }
-  })
-  
-  // IMPORTANTE! Desconectar do banco de dados quando a aplicação for encerrada
-  app.on('before-quit', () => {
+})
+
+// IMPORTANTE ! Desconectar do banco de dados quando a aplicação for encerrada.
+app.on('before-quit', () => {
     desconectar()
-  })
+})
 
 // template do menu
 const template = [
@@ -188,10 +167,6 @@ const template = [
             {
                 label: 'OS',
                 click: () => osWindow()
-            },
-            {
-                label: 'Smartphone',
-                click: () => smartphoneWindow()
             },
             {
                 type: 'separator'
@@ -208,13 +183,15 @@ const template = [
         submenu: [
             {
                 label: 'Clientes',
-                click: () =>  relatorioClientes()
+                click: () => relatorioClientes()
             },
             {
-                label: 'OS abertas'
+                label: 'OS abertas',
+                click: () => relatorioOsAberta()
             },
             {
-                label: 'OS concluídas'
+                label: 'OS concluídas',
+                click: () => relatorioOsConcluida()
             }
         ]
     },
@@ -257,91 +234,92 @@ const template = [
     }
 ]
 
-// recebimento dos pedidos do renderizador para abertura de janelas (botões)
+// recebimento dos pedidos do renderizador para abertura de janelas (botões) autorizado no preload.js
 ipcMain.on('client-window', () => {
     clientWindow()
-  })
+})
 
-  ipcMain.on('os-window', () => {
+ipcMain.on('os-window', () => {
     osWindow()
-  })
+})
 
-  ipcMain.on('smartphone-window', () => {
-  smartphoneWindow()
-  })
 
-  //===============================================================
-    // == Clientes - CRUD Create
-    // recebimento do objeto que contem os dados do cliente
+
+//************************************************************/
+//***********************  Clientes  *************************/
+//************************************************************/
+
+
+// ============================================================
+// == Clientes - CRUD Create ==================================
+
+// recebimento do objeto que contem os dados do cliente
 ipcMain.on('new-client', async (event, client) => {
     // Importante! Teste de recebimento dos dados do cliente
-console.log(client)
-try {
-    // criar uma nova de estrutura de dados usando a classe modelo.
-    // Atenção! Os atributos precisam ser identificados ao modelo de dados Cliente.js e os valores são definidos pelo
-    // conteúdo de objeto
-    const newClient = new clientModel({
-        nomeCliente: client.nameCli,
-        cpfCliente: client.cpfCli,
-        emailCliente: client.emailCli,
-        foneCliente: client.foneCli,
-        cepCliente: client.cepCli,
-        logradouroCliente: client.logradouroCli,
-        numeroCliente: client.numeroCli,
-        complementoCliente: client.complementCli,
-        bairroCliente: client.bairroCli,
-        cidadeCliente: client.cidadeCli,
-        ufCliente: client.ufCli
-    })
-    // salvar os dados do cliente no banco de dados
-    await newClient.save()
-    //Mensagem de confirmação
-    dialog.showMessageBox({
-      //Customização
-      type: 'info',
-      title: "Aviso",
-      message: "Cliente adicionado com sucesso",
-      buttons: ['OK']
-    }).then((result) => {
-      //ação ao precionar o botão 
-      if (result.response === 0) {
-        // enviar um pedido para o renderizador limpar os campos e resetar as 
-        // configurações pré definidas (rótulo) preload.js
-        event.reply('reset-form')
-      }
-
-    })
-  } catch (error) {
-    //se o codigo de erro for 11000 (cpf duflicado) enviar uma mensagem ao usuario
-    if (error.code === 11000) {
-      dialog.showMessageBox({
-        type: 'error',
-        title: "Atenção!",
-        message: "CPF já está cadastrado\nVerifique se digitou corretamente",
-        buttons: ['OK']
-      }).then((result) => {
-        if (result.response === 0) {
-          // limpar a caixa do input do cpf, focar esta caixa e deixar a borda em vermelho
+    console.log(client)
+    // Cadastrar a estrutura de dados no banco de dados MongoDB
+    try {
+        // criar uma nova de estrutura de dados usando a classe modelo. Atenção! Os atributos precisam ser idênticos ao modelo de dados Clientes.js e os valores são definidos pelo conteúdo do objeto cliente
+        const newClient = new clientModel({
+            nomeCliente: client.nameCli,
+            cpfCliente: client.cpfCli,
+            emailCliente: client.emailCli,
+            foneCliente: client.phoneCli,
+            cepCliente: client.cepCli,
+            logradouroCliente: client.addressCli,
+            numeroCliente: client.numberCli,
+            complementoCliente: client.complementCli,
+            bairroCliente: client.neighborhoodCli,
+            cidadeCliente: client.cityCli,
+            ufCliente: client.ufCli
+        })
+        // salvar os dados do cliente no banco de dados
+        await newClient.save()
+        // Mensagem de confirmação
+        dialog.showMessageBox({
+            //customização
+            type: 'info',
+            title: "Aviso",
+            message: "Cliente adicionado com sucesso",
+            buttons: ['OK']
+        }).then((result) => {
+            //ação ao pressionar o botão (result = 0)
+            if (result.response === 0) {
+                //enviar um pedido para o renderizador limpar os campos e resetar as configurações pré definidas (rótulo 'reset-form' do preload.js
+                event.reply('reset-form')
+            }
+        })
+    } catch (error) {
+        // se o código de erro for 11000 (cpf duplicado) enviar uma mensagem ao usuário
+        if (error.code === 11000) {
+            dialog.showMessageBox({
+                type: 'error',
+                title: "Atenção!",
+                message: "CPF já está cadastrado\nVerifique se digitou corretamente",
+                buttons: ['OK']
+            }).then((result) => {
+                if (result.response === 0) {
+                    // limpar a caixa de input do cpf, focar esta caixa e deixar a borda em vermelho
+                }
+            })
         }
-      })
+        console.log(error)
     }
-    console.log(error)
-  }
 })
-// -- Fim - Cliente - CRUD Create ===========
-// ==========================================
+
+// == Fim - Clientes - CRUD Create ============================
+// ============================================================
 
 
-
-    // ============================================================
-// == Relatórios de clientes ==================================
+// ============================================================
+// == Relatório de clientes ===================================
 
 async function relatorioClientes() {
     try {
         // Passo 1: Consultar o banco de dados e obter a listagem de clientes cadastrados por ordem alfabética
         const clientes = await clientModel.find().sort({ nomeCliente: 1 })
         // teste de recebimento da listagem de clientes
-        console.log(clientes)
+        //console.log(clientes)
         // Passo 2:Formatação do documento pdf
         // p - portrait | l - landscape | mm e a4 (folha A4 (210x297mm))
         const doc = new jsPDF('p', 'mm', 'a4')
@@ -373,7 +351,8 @@ async function relatorioClientes() {
         y += 10 // espaçamento da linha
         // percorrer o vetor clientes(obtido do banco) usando o laço forEach (equivale ao laço for)
         clientes.forEach((c) => {
-            // adicionar outra página se a folha inteira for preenchida (estratégia é saber o tamanho da folha)
+            // adicionar outra página se a folha inteira for preenchida (estratégia é saber o tamnaho da folha)
+            // folha A4 y = 297mm
             if (y > 280) {
                 doc.addPage()
                 y = 20 // resetar a variável y
@@ -382,26 +361,22 @@ async function relatorioClientes() {
                 doc.text("Telefone", 80, y)
                 doc.text("E-mail", 130, y)
                 y += 5
-                doc.setLineWidth(0.5) 
+                doc.setLineWidth(0.5)
                 doc.line(10, y, 200, y)
                 y += 10
             }
-            
-            // Garantir que os dados existem antes de chamar `text`
-            doc.text(c.nomeCliente || "Nome não informado", 14, y);
-            doc.text(c.foneCliente || "Telefone não informado", 80, y);
-            doc.text(c.emailCliente || "N/A", 130, y);
-            
-            y += 10 // quebra de linha
+            doc.text(c.nomeCliente, 14, y),
+                doc.text(c.foneCliente, 80, y),
+                doc.text(c.emailCliente || "N/A", 130, y)
+            y += 10 //quebra de linha
         })
-        
 
         // Adicionar numeração automática de páginas
         const paginas = doc.internal.getNumberOfPages()
         for (let i = 1; i <= paginas; i++) {
             doc.setPage(i)
             doc.setFontSize(10)
-            doc.text(`Página ${i} de ${paginas}`, 105, 290, {align: 'center'})
+            doc.text(`Página ${i} de ${paginas}`, 105, 290, { align: 'center' })
         }
 
         // Definir o caminho do arquivo temporário e nome do arquivo
@@ -419,162 +394,97 @@ async function relatorioClientes() {
 // == Fim - relatório de clientes =============================
 // ============================================================
 
+
 // ============================================================
-// == Ordem de Serviço - CRUD Create
-// recebimento do objeto que contem os dados da ordem de serviço
+// == CRUD Read ===============================================
 
-ipcMain.on('new-OS', async (event, os) => {
-    // Importante! Teste de recebimento dos dados da ordem de serviço
-    console.log(os) 
-    // Cadastrar a estrutura de dados no banco de dados MongoDB
-    try{
-        // criar uma nova de estrutura de dados usando a classe modelo. Atenção! Os atributos precisam ser idênticos ao modelo de dados OS.js e os valores são definidos pelo conteúdo do objeto cliente
-        const newOS = new osModel({
-            statusOS: os.StatusOS,
-            modelocellOS: os.modelocellOS,
-            tecnicoOS: os.tecnicoOS,
-            diagnoticoOS: os.diagnoticoOS,
-            imeiOS: os.ImeiOS,
-            descricaoOS: os.servicoOS,
-            valorOs: os.valorOs
-        })
-        // salvar os dados do os no banco de dados
-        await newOS.save()
-
-        // Mensagem de confirmação
-        dialog.showMessageBox({
-            // custon
-            type: 'info',
-            title: "Aviso",
-            message: "Ordem de serviço registrada com sucesso!",
-            buttons: ['OK']
-          }).then((result) => {
-             //ação ao pressionar o botão (result = 0)
-            if (result.response === 0) {
-                // pedido para o render limpar os campos e fazer um reset nas config 
-              event.reply('reset-form');
-            }
-          });
-        } catch (error) {
-            // se o código de erro for 11000(cpf duplicado) enviar uma mensagem ao usuario
-            if (error.code === 11000) {
-                dialog.showMessageBox({
-                    type: 'error',
-                    title: "Atenção",
-                    message: "CPF já cadastrado.\n",
-                    buttons: ['OK']
-                }).then((result) => {
-                    if (result.response === 0) {
-                        //Limpar a caixa de input do CPF, focar esta caixa e deixar a borda em vermelho
-    
-    
-                    }
-                })
-            }
-            console.log(error)
-        }
-    })
-
-// == Ordem de Serviço - CRUD Create
-// ============================================================
-
-// Validação de busca (obrigatório)
+// Validação de busca (preenchimento obrigatório)
 ipcMain.on('validate-search', () => {
     dialog.showMessageBox({
         type: 'warning',
-        title: 'Atenção',
+        title: "Atenção!",
         message: "Preencha o campo de busca",
         buttons: ['OK']
     })
 })
 
-// == CRUD Read =====================================================
 ipcMain.on('search-name', async (event, name) => {
     //console.log("teste IPC search-name")
     //console.log(name) // teste do passo 2 (importante!)
-    // Passo 3 e 4 busca dos dados do cliente no banco
-    // find({nomeCliente: name}) - busca
-    //
-    try{
-        /*const dataClient = await clientModel.find({
-      nomeCliente: new RegExp(name, 'i')
-    })*/
-    const dataClient = await clientModel.find({
-        $or: [
-          { nomeCliente: new RegExp(name, 'i') },
-          { cpfCliente: new RegExp(name, 'i') }
-        ]
-      })
+    // Passos 3 e 4 busca dos dados do cliente no banco
+    //find({nomeCliente: name}) - busca pelo nome
+    //RegExp(name, 'i') - i (insensitive / Ignorar maiúsculo ou minúsculo)
+    try {
+        const dataClient = await clientModel.find({
+            $or: [
+                { nomeCliente: new RegExp(name, 'i') },
+                { cpfCliente: new RegExp(name, 'i') }
+            ]
+        })
         console.log(dataClient) // teste passos 3 e 4 (importante!)
 
-        // melhoria da experiência do usuario (se o cliente não estiver cadastrado, alertar o usuario e questionar se ele quer cadastrar este novo cliente. Se não quiser cadastrar, limpar os campos, se quiser cadastra recortar o nome do cliente do campo de busca  e colar no campo nome)
+        // melhoria da experiência do usuário (se o cliente não estiver cadastrado, alertar o usuário e questionar se ele quer cadastrar este novo cliente. Se não quiser cadastrar, limpar os campos, se quiser cadastrar recortar o nome do cliente do campo de busca e colar no campo nome)
 
         // se o vetor estiver vazio [] (cliente não cadastrado)
         if (dataClient.length === 0) {
             dialog.showMessageBox({
                 type: 'warning',
-                title: "Avisos",
-                message: "Cliente não cadastrado. \nDeseja cadastra esse cliente?",
-                defaultId: 0, // botão 0
-                buttons: ['Sim', 'Não'] // [0 ,1]
+                title: "Aviso",
+                message: "Cliente não cadastrado.\nDeseja cadastrar este cliente?",
+                defaultId: 0, //botão 0
+                buttons: ['Sim', 'Não'] // [0, 1]
             }).then((result) => {
-                if( result.response === 0) {
-                    // enviar ao renderizador um pedido para setar os campos (recortar os campos)
+                if (result.response === 0) {
+                    // enviar ao renderizador um pedido para setar os campos (recortar do campo de busca e colar no campo nome)
                     event.reply('set-client')
                 } else {
-                    // limpar o formulario
+                    // limpar o formulário
                     event.reply('reset-form')
                 }
             })
+
         }
 
         // Passo 5:
         // enviando os dados do cliente ao rendererCliente
-        // OBS: IPC só trabalha com string, então é necessário converter o JSON
-        // para string JSON.stringify(dataClient)
+        // OBS: IPC só trabalha com string, então é necessário converter o JSON para string JSON.stringify(dataClient)
         event.reply('render-client', JSON.stringify(dataClient))
 
     } catch (error) {
         console.log(error)
     }
-
 })
 
-// == Fim CRUD Read =========================================
-// ===================================================================
+// == Fim - CRUD Read =========================================
 
 
-//===================================================================
-// CRUD Delete =======================================================
+// == CRUD Delete =============================================
+
 ipcMain.on('delete-client', async (event, id) => {
-    console.log(id) // teste do passo 2: recebimento do id
+    console.log(id) // teste do passo 2 (recebimento do id)
     try {
-        // importante - confirmar a exclusão
-        // client é o nome da variavel que responde a janela
-        const {response} = await dialog.showMessageBox(client, {
+        //importante - confirmar a exclusão
+        //client é o nome da variável que representa a janela
+        const { response } = await dialog.showMessageBox(client, {
             type: 'warning',
             title: "Atenção!",
-            message: "Deseja excluir esse cliente?\nEsta ação não poderá ser desfeita.",
-            buttons:['Cancelar', 'Excluir'] //[0, 1]
+            message: "Deseja excluir este cliente?\nEsta ação não poderá ser desfeita.",
+            buttons: ['Cancelar', 'Excluir'] //[0, 1]
         })
         if (response === 1) {
+            console.log("teste do if de excluir")
             //Passo 3 - Excluir o registro do cliente
             const delClient = await clientModel.findByIdAndDelete(id)
             event.reply('reset-form')
         }
-
     } catch (error) {
         console.log(error)
     }
 })
 
+// == Fim - CRUD Delete =======================================
 
 
-// Fim do CRUD Delete ================================================
-// ==================================================================
-
-
-// ============================================================
 // == CRUD Update =============================================
 
 ipcMain.on('update-client', async (event, client) => {
@@ -614,25 +524,165 @@ ipcMain.on('update-client', async (event, client) => {
                 event.reply('reset-form')
             }
         })
-
     } catch (error) {
         console.log(error)
     }
 })
 
 // == Fim - CRUD Update =======================================
-// ============================================================
 
-//************************************************************/
+
+
 //*******************  Ordem de Serviço  *********************/
-//************************************************************/
+// == Buscar cliente para vincular na OS ======================
+
+ipcMain.on('search-clients', async (event) => {
+    try {
+        const clients = await clientModel.find().sort({ nomeCliente: 1 })
+        //console.log(clients)
+        event.reply('list-clients', JSON.stringify(clients))
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+// == Fim - Buscar cliente para vincular na OS ================
+
+// == CRUD Create - Gerar OS ==================================
+
+// Validação de busca (preenchimento obrigatório Id Cliente-OS)
+ipcMain.on('validate-client', (event) => {
+    dialog.showMessageBox({
+        type: 'warning',
+        title: "Aviso!",
+        message: "É obrigatório vincular o cliente na Ordem de Serviço",
+        buttons: ['OK']
+    }).then((result) => {
+        //ação ao pressionar o botão (result = 0)
+        if (result.response === 0) {
+            event.reply('set-search')
+        }
+    })
+})
+
+ipcMain.on('new-os', async (event, os) => {
+    //importante! teste de recebimento dos dados da os (passo 2)
+    console.log(os)
+    // Cadastrar a estrutura de dados no banco de dados MongoDB
+    try {
+        // criar uma nova de estrutura de dados usando a classe modelo. Atenção! Os atributos precisam ser idênticos ao modelo de dados OS.js e os valores são definidos pelo conteúdo do objeto os
+        const newOS = new osModel({
+            idCliente: os.idClient_OS,
+            statusOS: os.stat_OS,
+            celular: os.smart_OS,
+            serie: os.serial_OS,
+            problema: os.problem_OS,
+            tecnico: os.specialist_OS,
+            diagnostico: os.diagnosis_OS,
+            pecas: os.parts_OS,
+            valor: os.total_OS
+        })
+        // salvar os dados da OS no banco de dados
+        await newOS.save()
+        // Mensagem de confirmação
+        dialog.showMessageBox({
+            //customização
+            type: 'info',
+            title: "Aviso",
+            message: "OS gerada com sucesso",
+            buttons: ['OK']
+        }).then((result) => {
+            //ação ao pressionar o botão (result = 0)
+            if (result.response === 0) {
+                //enviar um pedido para o renderizador limpar os campos e resetar as configurações pré definidas (rótulo 'reset-form' do preload.js
+                event.reply('reset-form')
+            }
+        })
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+// == Fim - CRUD Create - Gerar OS ===========================
+
+// == Excluir OS - CRUD Delete  ===============================
+
+ipcMain.on('delete-os', async (event, idOS) => {
+    console.log(idOS) // teste do passo 2 (recebimento do id)
+    try {
+        //importante - confirmar a exclusão
+        //osScreen é o nome da variável que representa a janela OS
+        const { response } = await dialog.showMessageBox(osScreen, {
+            type: 'warning',
+            title: "Atenção!",
+            message: "Deseja excluir esta ordem de serviço?\nEsta ação não poderá ser desfeita.",
+            buttons: ['Cancelar', 'Excluir'] //[0, 1]
+        })
+        if (response === 1) {
+            //console.log("teste do if de excluir")
+            //Passo 3 - Excluir a OS
+            const delOS = await osModel.findByIdAndDelete(idOS)
+            event.reply('reset-form')
+        }
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+// == Fim Excluir OS - CRUD Delete ============================
+// ============================================================
 
 
 // ============================================================
-// == Buscar OS ===============================================
+// == Editar OS - CRUD Update =================================
 
-ipcMain.on('search-os', (event) => {
-    //console.log("teste: busca OS")
+ipcMain.on('update-os', async (event, os) => {
+    //importante! teste de recebimento dos dados da os (passo 2)
+    console.log(os)
+    // Alterar os dados da OS no banco de dados MongoDB
+    try {
+        // criar uma nova de estrutura de dados usando a classe modelo. Atenção! Os atributos precisam ser idênticos ao modelo de dados OS.js e os valores são definidos pelo conteúdo do objeto os
+        const updateOS = await osModel.findByIdAndUpdate(
+            os.id_OS,
+            {
+                idCliente: os.idClient_OS,
+                statusOS: os.stat_OS,
+                celular: os.smart_OS,
+                serie: os.serial_OS,
+                problema: os.problem_OS,
+                tecnico: os.specialist_OS,
+                diagnostico: os.diagnosis_OS,
+                pecas: os.parts_OS,
+                valor: os.total_OS
+            },
+            {
+                new: true
+            }
+        )
+        // Mensagem de confirmação
+        dialog.showMessageBox({
+            //customização
+            type: 'info',
+            title: "Aviso",
+            message: "Dados da OS alterados com sucesso",
+            buttons: ['OK']
+        }).then((result) => {
+            //ação ao pressionar o botão (result = 0)
+            if (result.response === 0) {
+                //enviar um pedido para o renderizador limpar os campos e resetar as configurações pré definidas (rótulo 'reset-form' do preload.js
+                event.reply('reset-form')
+            }
+        })
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+// == Fim Editar OS - CRUD Update =============================
+
+// == Buscar OS - CRUD Read ===================================
+
+ipcMain.on('search-os', async (event) => {
     prompt({
         title: 'Buscar OS',
         label: 'Digite o número da OS:',
@@ -642,43 +692,325 @@ ipcMain.on('search-os', (event) => {
         type: 'input',
         width: 400,
         height: 200
-    }).then((result) => {
+    }).then(async (result) => {
+        // buscar OS pelo id (verificar formato usando o mongoose - importar no início do main)
         if (result !== null) {
-            console.log(result)
-            //buscar a os no banco pesquisando pelo valor do result (número da OS)
-
+            // Verificar se o ID é válido (uso do mongoose - não esquecer de importar)
+            if (mongoose.Types.ObjectId.isValid(result)) {
+                try {
+                    const dataOS = await osModel.findById(result)
+                    if (dataOS && dataOS !== null) {
+                        console.log(dataOS) // teste importante
+                        // enviando os dados da OS ao rendererOS
+                        // OBS: IPC só trabalha com string, então é necessário converter o JSON para string JSON.stringify(dataOS)
+                        event.reply('render-os', JSON.stringify(dataOS))
+                    } else {
+                        dialog.showMessageBox({
+                            type: 'warning',
+                            title: "Aviso!",
+                            message: "OS não encontrada",
+                            buttons: ['OK']
+                        })
+                    }
+                } catch (error) {
+                    console.log(error)
+                }
+            } else {
+                dialog.showMessageBox({
+                    type: 'error',
+                    title: "Atenção!",
+                    message: "Formato do número da OS inválido.\nVerifique e tente novamente.",
+                    buttons: ['OK']
+                })
+            }
         }
     })
 })
 
-// == Fim - Buscar OS =========================================
-// ============================================================
+// == Fim - Buscar OS - CRUD Read =============================
 
 
-// ============================================================
-// == CRUD Create - Gerar OS ==================================
-
-
-// == Fim - CRUD Create - Gerar OS ===========================
-// ============================================================
-
-
-
-// ============================================================
-// == Buscar cliente para vincular na OS(busca estilo Google) = 
-
-ipcMain.on('search-clients', async (event) => {
+async function relatorioOsAberta() {
     try {
-        // buscar no banco os clientes pelo nome em ordem alfabética
-        const clients = await clientModel.find().sort({ nomeCliente: 1 })
-        //console.log(clients) // teste do passo 2
-        // Passo 3: Envio dos clientes para o renderizador
-        // Obs: não esquecer de converter para String
-        event.reply('list-clients', JSON.stringify(clients))
+        const osaberta = await osModel.find({ statusOS: 'Aberta' }).sort({ nomeCliente: 1 })
+        const clientes = await clientModel.find({})
+
+        const doc = new jsPDF('l', 'mm', 'a4')
+
+        // Logo
+        const imagePath = path.join(__dirname, 'src', 'public', 'img', 'logo.png')
+        const imageBase64 = fs.readFileSync(imagePath, 'base64')
+        doc.addImage(imageBase64, 'PNG', 5, 8)
+
+        // Título e data
+        doc.setFontSize(18)
+        doc.text("Relatório de OS Abertas", 100, 30)
+        doc.setFontSize(12)
+        doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, 250, 10)
+
+        // Cabeçalho
+        let y = 60
+        doc.text("Cliente", 14, y)
+        doc.text("Telefone", 75, y)
+        doc.text("Data", 110, y)
+        doc.text("Técnico", 140, y)
+        doc.text("Diagnóstico", 165, y)
+        doc.text("Peça", 220, y)
+        y += 5
+        doc.setLineWidth(0.5) // expessura da linha
+        doc.line(10, y, 280, y) // 10 (inicio) ---- 200 (fim)
+
+        y += 5 // espaçamento da linha
+
+        osaberta.forEach(os => {
+            if (y > 280) {
+                doc.addPage()
+                y = 20
+                doc.text("Cliente", 14, y)
+                doc.text("Telefone", 75, y)
+
+                doc.text("Data", 110, y)
+                doc.text("Técnico", 140, y)
+                doc.text("Diagnóstico", 165, y)
+                doc.text("Peça", 220, y)
+                y += 5
+            }
+
+            const cliente = clientes.find(c => c._id.equals(os.idCliente))
+            const nomeCliente = cliente ? cliente.nomeCliente : ''
+            const telefone = clientes.find(c => c._id.equals(os.idCliente))
+            const foneCliente = telefone ? telefone.foneCliente : ''
+
+
+            //doc.text(os._id.toString(), 14, y)
+            doc.text(nomeCliente, 14, y)
+            doc.text(foneCliente, 75, y)
+            doc.text(os.dataEntrada ? new Date(os.dataEntrada).toLocaleDateString('pt-BR') : 'N/A', 110, y)
+            doc.text(os.tecnico, 140, y)
+            doc.text(os.diagnostico, 165, y)
+            doc.text(os.pecas, 220, y)
+
+            y += 5
+        })
+
+        // Paginação
+        const paginas = doc.internal.getNumberOfPages()
+        for (let i = 1; i <= paginas; i++) {
+            doc.setPage(i)
+            doc.setFontSize(10)
+            doc.text(`Página ${i} de ${paginas}`, 105, 290, { align: 'center' })
+        }
+
+        // Salvar e abrir
+        const tempDir = app.getPath('temp')
+        const filePath = path.join(tempDir, 'Osaberta.pdf')
+        doc.save(filePath)
+        shell.openPath(filePath)
+
     } catch (error) {
-        console.log(error)
+        console.error("Erro ao gerar relatório:", error)
     }
+}
+
+// == Fim - relatório de Os Concluída =============================
+
+async function relatorioOsConcluida() {
+    try {
+        const osconcluida = await osModel.find({ statusOS: 'Finalizada' }).sort({ nomeCliente: 1 })
+        const clientes = await clientModel.find({})
+
+        const doc = new jsPDF('l', 'mm', 'a4')
+
+        // Logo
+        const imagePath = path.join(__dirname, 'src', 'public', 'img', 'logo.png')
+        const imageBase64 = fs.readFileSync(imagePath, 'base64')
+        doc.addImage(imageBase64, 'PNG', 5, 8)
+
+        // Título e data
+        doc.setFontSize(18)
+        doc.text("Relatório de Os Concluída", 100, 30)
+        doc.setFontSize(12)
+        doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, 250, 10)
+
+        // Cabeçalho
+        let y = 60
+        doc.text("Cliente", 14, y)
+        doc.text("Telefone", 75, y)
+        doc.text("Data", 110, y)
+        doc.text("Técnico", 140, y)
+        doc.text("Diagnóstico", 165, y)
+        doc.text("Peça", 220, y)
+        y += 5
+        doc.setLineWidth(0.5) // expessura da linha
+        doc.line(10, y, 280, y) // 10 (inicio) ---- 200 (fim)
+
+        y += 5 // espaçamento da linha
+
+        osconcluida.forEach(os => {
+            if (y > 280) {
+                doc.addPage()
+                y = 20
+                doc.text("Cliente", 14, y)
+                doc.text("Telefone", 75, y)
+
+                doc.text("Data", 110, y)
+                doc.text("Técnico", 140, y)
+                doc.text("Diagnóstico", 165, y)
+                doc.text("Peça", 220, y)
+                y += 5
+            }
+
+            const cliente = clientes.find(c => c._id.equals(os.idCliente))
+            const nomeCliente = cliente ? cliente.nomeCliente : ''
+            const telefone = clientes.find(c => c._id.equals(os.idCliente))
+            const foneCliente = telefone ? telefone.foneCliente : ''
+
+
+            //doc.text(os._id.toString(), 14, y)
+            doc.text(nomeCliente, 14, y)
+            doc.text(foneCliente, 75, y)
+            doc.text(os.dataEntrada ? new Date(os.dataEntrada).toLocaleDateString('pt-BR') : 'N/A', 110, y)
+            doc.text(os.tecnico, 140, y)
+            doc.text(os.diagnostico, 165, y)
+            doc.text(os.pecas, 220, y)
+
+            y += 5
+        })
+
+        // Paginação
+        const paginas = doc.internal.getNumberOfPages()
+        for (let i = 1; i <= paginas; i++) {
+            doc.setPage(i)
+            doc.setFontSize(10)
+            doc.text(`Página ${i} de ${paginas}`, 105, 290, { align: 'center' })
+        }
+
+        // Salvar e abrir
+        const tempDir = app.getPath('temp')
+        const filePath = path.join(tempDir, 'Osaberta.pdf')
+        doc.save(filePath)
+        shell.openPath(filePath)
+
+    } catch (error) {
+        console.error("Erro ao gerar relatório:", error)
+    }
+}
+//Erro cpf ou 
+ipcMain.on('show-error-box', (event, message) => {
+    dialog.showMessageBox({
+        type: 'error',
+        title: 'Erro',
+        message: message,
+        buttons: ['OK']
+    });
+});
+
+// == Fim - relatório de Os Concluída =============================
+
+// == Inicio Imprimir OS ================================================
+
+ipcMain.on('print-os', async (event) => {
+    prompt({
+        title: 'Imprimir OS',
+        label: 'Digite o número da OS:',
+        inputAttrs: {
+            type: 'text'
+        },
+        type: 'input',
+        width: 400,
+        height: 200
+    }).then(async (result) => {
+        // buscar OS pelo id (verificar formato usando o mongoose - importar no início do main)
+        if (result !== null) {
+            // Verificar se o ID é válido (uso do mongoose - não esquecer de importar)
+            if (mongoose.Types.ObjectId.isValid(result)) {
+                try {
+                    //Teste botão
+                    //console.log("imprimir OS")
+                    const dataOS = await osModel.findById(result)
+                    if (dataOS && dataOS !== null) {
+                        console.log(dataOS) // teste importante
+                        //extrair dados do cliente
+                        const dataClient = await clientModel.find({
+
+                            _id: dataOS.idCliente
+
+                        })
+                        console.log(dataClient)
+                        // Impressão (documento PDF) E termos de garantia
+                        // formatação do documento pdf
+                        const doc = new jsPDF('p', 'mm', 'a4')
+                        const imagePath = path.join(__dirname, 'src', 'public', 'img', 'logo.png')
+                        const imageBase64 = fs.readFileSync(imagePath, { encoding: 'base64' })
+                        doc.addImage(imageBase64, 'PNG', 5, 8)
+                        doc.setFontSize(18)
+                        doc.text("OS:", 14, 45) //x=14, y=45
+
+                        // Extração dos dados da OS e do cliente vinculado
+
+                        // Texto do termo de serviço
+                        doc.setFontSize(10)
+                        const termo = `
+Termo de Serviço e Garantia – Assistência Técnica de Celulares e Tabelts
+
+O cliente, ao assinar esta Ordem de Serviço, declara estar ciente e de acordo com os termos abaixo, autorizando a realização dos serviços técnicos no aparelho celular entregue:
+
+Diagnóstico e Orçamento
+A avaliação técnica e o orçamento são gratuitos somente em caso de aprovação do serviço. Caso o cliente opte por não realizar o reparo, poderá ser cobrada uma taxa de diagnóstico para cobrir os custos da análise técnica.
+
+Peças Substituídas
+As peças substituídas poderão ser descartadas pela assistência ou devolvidas ao cliente, mediante solicitação no momento da entrega do aparelho.
+
+Garantia
+A garantia dos serviços prestados e das peças trocadas é de 90 dias, conforme Art. 26 do Código de Defesa do Consumidor. A garantia cobre exclusivamente o reparo executado ou a peça substituída, desde que o equipamento não seja violado por terceiros, nem apresente danos físicos, queda, oxidação ou mau uso após o conserto.
+
+Responsabilidade sobre Dados
+A assistência técnica não se responsabiliza por perda de dados armazenados no aparelho, como fotos, contatos, aplicativos e arquivos. Recomenda-se fortemente que o cliente realize backup prévio.
+
+Prazo para Retirada do Aparelho
+O aparelho deve ser retirado em até 90 dias após a conclusão do serviço. Após esse prazo, conforme Art. 1.275 do Código Civil, o equipamento poderá estar sujeito à cobrança de armazenagem ou ao descarte/destinação adequada.
+
+Procedência de Peças
+As peças utilizadas são compatíveis e de procedência conhecida. Peças originais, quando disponíveis, podem ter prazo de entrega e valores diferenciados.
+
+Proteção de Dados Pessoais
+Os dados do cliente coletados nesta ordem de serviço são protegidos conforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018) e serão utilizados apenas para fins técnicos e administrativos.`
+
+                        // Inserir o termo no PDF
+                        doc.text(termo, 14, 60, { maxWidth: 180 }) // x=14, y=60, largura máxima para quebrar o texto automaticamente
+
+                        // Definir o caminho do arquivo temporário e nome do arquivo
+                        const tempDir = app.getPath('temp')
+                        const filePath = path.join(tempDir, 'os.pdf')
+                        // salvar temporariamente o arquivo
+                        doc.save(filePath)
+                        // abrir o arquivo no aplicativo padrão de leitura de pdf do computador do usuário
+                        shell.openPath(filePath)
+
+                    } else {
+                        dialog.showMessageBox({
+                            type: 'warning',
+                            title: "Aviso!",
+                            message: "OS não encontrada",
+                            buttons: ['OK']
+                        })
+                    }
+
+                } catch (error) {
+                    console.log(error)
+                }
+            } else {
+                dialog.showMessageBox({
+                    type: 'error',
+                    title: "Atenção!",
+                    message: "Formato do número da OS inválido.\nVerifique e tente novamente.",
+                    buttons: ['OK']
+                })
+            }
+        }
+    })
 })
 
-// == Fim - Busca Cliente (estilo Google) =====================
-// ============================================================
+
+// == Fim Imprimir OS ================================================
+
