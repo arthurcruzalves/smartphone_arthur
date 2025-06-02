@@ -1,12 +1,5 @@
-/**
- * Modelo de dados para construção das coleções("tabelas")
- * Clientes
- */
-
-// importação dos recursos do framework mongoose
 const { model, Schema } = require('mongoose')
 
-// criação da estrutura da coleção Clientes
 const clienteSchema = new Schema({
     nomeCliente: {
         type: String

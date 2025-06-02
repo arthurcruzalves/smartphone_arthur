@@ -1,6 +1,3 @@
-
-
-//Data atualizadano rodapé
 function obterData() {
     const dataAtual =  new Date()
     const options = {
