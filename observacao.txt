@@ -1,6 +1,0 @@
-OS     
-campo de marca do aparelho,
-campo de peças,
-
-Clientes    
-editar, excluir e busca pelo cpf

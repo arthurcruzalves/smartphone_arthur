@@ -164,6 +164,11 @@ api.renderOS((event, dataOS) => {
 })
 
 
+function removeOS(){
+    api.deleteOS()
+}
+
+
 function resetForm() {
     location.reload()
 }

@@ -1,6 +1,6 @@
 console.log("Processo principal")
 
-const { app, BrowserWindow, nativeTheme, Menu, ipcMain, dialog, shell } = require('electron')
+const { app, BrowserWindow, nativeTheme, Menu, ipcMain, dialog, shell} = require('electron')
 
 const path = require('node:path')
 
@@ -536,7 +536,7 @@ ipcMain.on('delete-os', async (event, idOS) => {
     try {
         
         
-        const { response } = await dialog.showMessageBox(osScreen, {
+        const { response } = await dialog.showMessageBox(os, {
             type: 'warning',
             title: "Atenção!",
             message: "Deseja excluir esta ordem de serviço?\nEsta ação não poderá ser desfeita.",
